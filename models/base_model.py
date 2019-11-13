@@ -7,13 +7,23 @@ from datetime import datetime
 class BaseModel:
     """ BaseModel class """
 
-    def __init__(self, name=None, my_number=None):
+    def __init__(self, *args, **kwargs):
         """ init method """
-        self.name = name
-        self.my_number = my_number
         self.id = str(uuid4())
         self.created_at = datetime.now()
         self.updated_at = datetime.now()
+        if kwargs:
+            for key, value in kwargs.items():
+                if key == "created_at" or key == "updated_at":
+                    self.key = str(value)
+                else:
+                    self.key = value
+        # else:
+            # self.name = name
+            # self.my_number = my_number
+            # self.id = str(uuid4())
+            # self.created_at = datetime.now()
+            # self.updated_at = datetime.now()
 
     def __str__(self):
         """ Print/display method """
