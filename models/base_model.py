@@ -1,35 +1,41 @@
 #!/usr/bin/python3
-""" BaseModel class """
+"""class BaseModel"""
 
-from uuid import uuid4
+import uuid
 from datetime import datetime
+import models
+
 
 class BaseModel:
-    """ BaseModel class """
+    """ contents """
 
-    def __init__(self, name=None, my_number=None):
-        """ init method """
-        self.name = name
-        self.my_number = my_number
-        self.id = str(uuid4())
+    def __init__(self, *args, **kwargs):
+        """ class construct & append id to idlist"""
+        self.id = str(uuid.uuid4())
         self.created_at = datetime.now()
-        self.updated_at = datetime.now()
+        self.updated_at = self.created_at
+        if (kwargs):
+            for key, value in kwargs.items():
+                if key == '__class__':
+                    continue
+                setattr(self, key, value)
 
     def __str__(self):
-        """ Print/display method """
-        return ("[{}] ({}) {}".format(self.__class__.__name__, self.id, self.__dict__))
+        """ string rep """
+        return "[{:s}] ({:s}) {}".format(
+            self.__class__.__name__, self.id, self.__dict__)
 
     def save(self):
-        """ Set updated time stamp upon save """
+        """ updates using datetime """
         self.updated_at = datetime.now()
+        models.storage.save()
 
     def to_dict(self):
-        """ Translate attributes to dict """
-        d = {}
-        d["my_number"] = self.my_number
-        d["name"] = self.name
-        d["__class__"] = self.__class__.__name__
-        d["updated_at"] = self.updated_at.isoformat()
-        d["id"] = self.id
-        d["created_at"] = self.created_at.strftime('%Y-%m-%dT%H:%M:%S.%f')
-        return d
+        """ return dict of values and keys """
+        read_dict = self.__dict__.copy()
+        if "created_at" in read_dict:
+            read_dict["created_at"] = read_dict["created_at"].isoformat()
+        if "updated_at" in read_dict:
+            read_dict["updated_at"] = read_dict["updated_at"]
+        read_dict["__class__"] = self.__class__.__name__
+        return read_dict
